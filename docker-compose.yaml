@@ -1,5 +1,63 @@
 version: '3.9'
 services:
+  nginx:
+    image: nginx:latest
+    expose:
+      - 80
+      - 8080:8080
+      - 8081:8081
+    ports:
+      - 80:80
+      - 8080:8080
+      - 8081:8081
+    depends_on:
+      - admin
+    volumes:
+      - logs:/srv/logs
+      - static:/srv/static
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  auth:
+    restart: always
+    env_file:
+      - .env
+    environment:
+      APP_NAME: ${AUTH_APP_NAME}
+      APP_HOST: ${AUTH_APP_HOST}
+      APP_PORT: ${AUTH_APP_PORT}
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_USER: ${AUTH_DB_USER}
+      DB_HOST: ${AUTH_DB_HOST}
+      DB_PORT: ${AUTH_DB_PORT}
+      POSTGRES_URL: ${AUTH_DB_URL}
+      SCHEMA_NAME: ${AUTH_SCHEMA_NAME}
+      APP_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
+      AMPQ_URL: ${MQ_BROKER_URL}
+    depends_on:
+      - storage
+    image: 345789231/auth-service:latest
+    ports:
+      - ${AUTH_APP_PORT}:${AUTH_APP_PORT}
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
+      alembic upgrade head && python cli.py serve --host=${AUTH_APP_HOST} --port=${AUTH_APP_PORT}"
+
+  auth-db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${AUTH_DB_NAME}
+      POSTGRES_PASSWORD: ${AUTH_DB_PASSWORD}
+      POSTGRES_USER: ${AUTH_DB_USER}
+      DB_HOST: ${AUTH_DB_HOST}
+      DB_PORT: ${AUTH_DB_PORT}
+      POSTGRES_URL: ${AUTH_DB_URL}
+      SCHEMA_NAME: ${AUTH_SCHEMA_NAME}
+    volumes:
+      - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - auth-data:/var/lib/postgresql/data
+
   profile:
     restart: always
     build:
@@ -30,22 +88,6 @@ services:
       - profile-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
-
-  nginx:
-    image: nginx:latest
-    expose:
-      - 80
-      - 8081:8081
-    ports:
-      - 80:80
-      - 8081:8081
-    depends_on:
-      - admin
-    volumes:
-      - logs:/srv/logs
-      - static:/srv/static
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
 
   admin:
     image: 345789231/admin-panel-service
@@ -134,7 +176,14 @@ services:
     volumes:
       - storage-data:/var/lib/storage-data/data
 
+  tracer:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - ${JAEGER_PORT}:${JAEGER_PORT}/udp
+      - ${JAEGER_UI_PORT}:${JAEGER_UI_PORT}
+
 volumes:
+  auth-data:
   admin-data:
   profile-data:
   mq-broker-data:
