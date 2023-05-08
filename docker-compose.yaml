@@ -1,11 +1,44 @@
 version: '3.9'
 services:
+  profile:
+    restart: always
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      DB_HOST: ${PROFILE_DB_HOST}
+      DB_PORT: ${PROFILE_DB_PORT}
+    depends_on:
+      - profile-db
+    ports:
+      - ${PROFILE_APP_PORT}:${PROFILE_APP_PORT}
+    command: sh -c "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
+
+  profile-db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${PROFILE_DB_NAME}
+      POSTGRES_PASSWORD: ${PROFILE_DB_PASSWORD}
+      POSTGRES_USER: ${PROFILE_DB_USER}
+      DB_HOST: ${PROFILE_DB_HOST}
+      DB_PORT: ${PROFILE_DB_PORT}
+      POSTGRES_URL: ${PROFILE_DB_URL}
+    volumes:
+      - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - profile-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
   nginx:
     image: nginx:latest
     expose:
       - 80
+      - 8081:8081
     ports:
       - 80:80
+      - 8081:8081
     depends_on:
       - admin
     volumes:
@@ -103,6 +136,7 @@ services:
 
 volumes:
   admin-data:
+  profile-data:
   mq-broker-data:
   mq-broker-logs:
   static:
