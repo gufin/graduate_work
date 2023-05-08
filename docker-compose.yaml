@@ -1,0 +1,113 @@
+version: '3.9'
+services:
+  nginx:
+    image: nginx:latest
+    expose:
+      - 80
+    ports:
+      - 80:80
+    depends_on:
+      - admin
+    volumes:
+      - logs:/srv/logs
+      - static:/srv/static
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+
+  admin:
+    image: 345789231/admin-panel-service
+    restart: always
+    environment:
+      SECRET_KEY: ${ADMIN_APP_SECRET_KEY}
+      AMPQ_URL: ${MQ_BROKER_URL}
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+      DB_HOST: ${ADMIN_DB_HOST}
+      DB_PORT: ${ADMIN_DB_PORT}
+    volumes:
+      - static:/app/static
+    depends_on:
+      - admin-db
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
+      uwsgi --strict --ini uwsgi.ini"
+
+  admin-db:
+    image: postgres:14-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+    volumes:
+      - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - admin-data:/var/lib/postgresql/data
+
+  mq-broker:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - ${MQ_BROKER_PORT}:${MQ_BROKER_PORT}
+      - ${MQ_BROKER_UI_PORT}:${MQ_BROKER_UI_PORT}
+    volumes:
+      - mq-broker-data:/var/lib/rabbitmq
+      - mq-broker-logs:/var/log/rabbitmq
+
+  elasticsearch:
+    image: elasticsearch:7.17.6
+    restart: always
+    environment:
+      - discovery.type=${ES_DISCOVERY_TYPE}
+      - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+    volumes:
+        - elasticsearch-data:/var/lib/elasticsearch/data
+    ports:
+      - ${ES_PORT}:${ES_PORT}
+
+  etl-worker:
+    image: 345789231/etl-service
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+      DB_HOST: ${ADMIN_DB_HOST}
+      DB_PORT: ${ADMIN_DB_PORT}
+    command: celery -A tasks worker -l info
+    depends_on:
+      - storage
+
+  etl-scheduler:
+    image: 345789231/etl-service
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+      DB_HOST: ${ADMIN_DB_HOST}
+      DB_PORT: ${ADMIN_DB_PORT}
+    command: celery -A tasks beat -l info
+    depends_on:
+      - storage
+
+  storage:
+    image: redis:latest
+    env_file:
+      - .env
+    ports:
+      - ${STORAGE_PORT}:${STORAGE_PORT}
+    volumes:
+      - storage-data:/var/lib/storage-data/data
+
+volumes:
+  admin-data:
+  mq-broker-data:
+  mq-broker-logs:
+  static:
+  logs:
+  storage-data:
+    driver: local
+  elasticsearch-data:
+    driver: local
