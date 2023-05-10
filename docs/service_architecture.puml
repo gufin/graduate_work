@@ -1,0 +1,51 @@
+@startuml
+database "Kafka" as kafka
+
+frame "UGC service" as ugc_service {
+    database "Mongo UGC" as mongo_ugc
+}
+
+frame "Movie API service" {
+    frame "Fast API" as movies_api
+}
+
+frame "Profile service" as user_profile_service {
+    frame "Fast API" as user_profile_api
+    database "Postgres" as user_profile_db
+    frame "Kafka producer" as profile_producer
+    frame "Kafka consumer" as profile_consumer
+}
+
+frame "ETL Service" as etl_service {
+    [users-pipe]
+    [movies-pipe]
+    database "Elastic search" as es {
+    }
+}
+
+frame "Admin panel" as admin_panel
+
+actor "User" as User
+actor "Admin" as Admin
+
+User <--> user_profile_api : CRUD(ФИО, телефон, user_id)
+kafka --> profile_consumer: likes
+profile_consumer --> user_profile_db: favorite_movie_ids
+profile_consumer --> profile_producer: favorite_movie_ids
+movies_api --> user_profile_api: user_favorite_movie_ids
+profile_producer --> kafka: ФИО, телефон, user_id, favorite_movie_ids
+kafka --> admin_panel: ФИО, телефон, user_id, user_favorite_movie_ids
+
+user_profile_api --> user_profile_db: ФИО, телефон, user_id
+user_profile_api --> profile_producer: ФИО, телефон, user_id
+user_profile_api <-- user_profile_db: favorite_movie_ids
+
+User <-- movies_api: movie_details, user_favorite_movies, movie_reviews
+Admin <-- admin_panel: profiles
+
+[movies-pipe] <-- mongo_ugc: rating
+[users-pipe] <-- mongo_ugc: reviews
+movies_api <-- es: movie_reviews, movie_details
+
+ugc_service --> kafka: likes
+@enduml
