@@ -1,0 +1,34 @@
+@startuml
+frame "UGC" as ugc_service
+frame "Auth service" as auth_service
+frame "Async API service" as async_api_service  {
+    frame "Elastic search" as es
+}
+
+frame "User profile service" as user_profile_service {
+    frame "Fast API" as user_profile_api
+    database "Postgres" as user_profile_db
+}
+
+frame "ETL (to User Profile)" as etl_service_user
+frame "ETL (to Admin)" as etl_service_admin
+
+frame "Admin panel" as admin_panel
+
+actor "User" as User
+actor "Admin" as Admin
+
+auth_service --> user_profile_service : "При регистрации пользователя передаем его ID"
+ugc_service --> etl_service_user: "Передаем данные о лайках, рецензиях и закладках с ID пользователя"
+etl_service_user --> user_profile_service
+async_api_service --> user_profile_service: "Получаем movie_id понравившихся фильмов"
+user_profile_service --> etl_service_admin: "Все данные о пользователе"
+etl_service_admin --> admin_panel
+
+user_profile_api --> user_profile_db
+
+User <-- user_profile_service: "Чувствительная информация"
+User <-- async_api_service: "Данные о лайках, рецензиях и закладках"
+Admin <-- admin_panel: "Все данные о пользователе"
+
+@enduml
