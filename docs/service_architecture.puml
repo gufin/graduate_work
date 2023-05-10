@@ -1,28 +1,25 @@
 @startuml
-frame "UGC" as ugc_service {
-    database "Kafka" as kafka
+database "Kafka" as kafka
+
+frame "UGC service" as ugc_service {
     database "Mongo UGC" as mongo_ugc
 }
-frame "Auth service" as auth_service
-frame "Async API service" as async_api_service  {
-    frame "Elastic search" as es
+
+frame "Movie API service" {
+    frame "Fast API" as movies_api
 }
 
-frame "User profile service" as user_profile_service {
+frame "Profile service" as user_profile_service {
     frame "Fast API" as user_profile_api
     database "Postgres" as user_profile_db
+    frame "Kafka producer" as profile_producer
+    frame "Kafka consumer" as profile_consumer
 }
 
 frame "ETL Service" as etl_service {
-    frame "Elastic search" as es {
-        database "users_index"
-    }
-    database "Mongo UGC" as mongo_ugc
-}
-
-frame "ETL Service" as etl_service {
-    frame "Elastic search" as es {
-        database "users_index"
+    [users-pipe]
+    [movies-pipe]
+    database "Elastic search" as es {
     }
 }
 
@@ -31,16 +28,24 @@ frame "Admin panel" as admin_panel
 actor "User" as User
 actor "Admin" as Admin
 
-User --> user_profile_service : "При регистрации пользователя передаем его ID полученный на 1 шаге в сервисе авторизации и на втором шаге передаем в сервис профилей пользователей ФИО и контактный номер"
-kafka --> user_profile_service: "Передаем данные о лайках, рецензиях и закладках с ID пользователя и movie_id"
-async_api_service --> user_profile_service: "Получаем movie_id понравившихся фильмов"
-user_profile_service --> kafka: "Все данные о пользователе"
-kafka --> admin_panel
+User <--> user_profile_api : CRUD(ФИО, телефон, user_id)
+kafka --> profile_consumer: likes
+profile_consumer --> user_profile_db: favorite_movie_ids
+profile_consumer --> profile_producer: favorite_movie_ids
+movies_api --> user_profile_api: user_favorite_movie_ids
+profile_producer --> kafka: ФИО, телефон, user_id, favorite_movie_ids
+kafka --> admin_panel: ФИО, телефон, user_id, user_favorite_movie_ids
 
-user_profile_api --> user_profile_db
+user_profile_api --> user_profile_db: ФИО, телефон, user_id
+user_profile_api --> profile_producer: ФИО, телефон, user_id
+user_profile_api <-- user_profile_db: favorite_movie_ids
 
-User <-- user_profile_service: "Чувствительная информация: ФИО, номер телефона"
-User <-- async_api_service: "Получаем данные о лайках, рецензиях и закладках по movie_id полученным в Async API service"
-Admin <-- admin_panel: "Данные о пользователе: ФИО, номер телефона"
+User <-- movies_api: movie_details, user_favorite_movies, movie_reviews
+Admin <-- admin_panel: profiles
 
+[movies-pipe] <-- mongo_ugc: rating
+[users-pipe] <-- mongo_ugc: reviews
+movies_api <-- es: movie_reviews, movie_details
+
+ugc_service --> kafka: likes
 @enduml
