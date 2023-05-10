@@ -6,6 +6,12 @@
 
 Удачи!
 
+[Репозиторий проекта](https://github.com/alex-fullstack/graduate_work)
+
+[Техническое задание](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
+
+[Схема архитектуры](https://github.com/alex-fullstack/graduate_work/blob/main/docs/service_architecture.png)
+
 **Зависимости проекта:**
 
 - docker
