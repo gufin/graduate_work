@@ -6,10 +6,12 @@ services:
       - 80
       - 8080:8080
       - 8081:8081
+      - 8082:8082
     ports:
       - 80:80
       - 8080:8080
       - 8081:8081
+      - 8082:8082
     depends_on:
       - admin
     volumes:
@@ -118,6 +120,20 @@ services:
       - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - admin-data:/var/lib/postgresql/data
 
+  ugc:
+    restart: always
+    env_file:
+      - .env
+    environment:
+      AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
+      PROJECT_NAME: ${UGC_APP_PROJECT_NAME}
+      AMPQ_URL: ${MQ_BROKER_URL}
+    ports:
+      - ${UGC_APP_PORT}:${UGC_APP_PORT}
+    image: 345789231/ugc-service
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
+      gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${UGC_APP_HOST}:${UGC_APP_PORT}"
+
   mq-broker:
     image: rabbitmq:3-management-alpine
     restart: always
@@ -181,6 +197,13 @@ services:
     ports:
       - ${JAEGER_PORT}:${JAEGER_PORT}/udp
       - ${JAEGER_UI_PORT}:${JAEGER_UI_PORT}
+
+  mongo:
+    image: mongo
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
 
 volumes:
   auth-data:
