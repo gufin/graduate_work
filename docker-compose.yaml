@@ -4,9 +4,9 @@ services:
     image: nginx:latest
     expose:
       - 80
-      - 8080:8080
-      - 8081:8081
-      - 8082:8082
+      - 8080
+      - 8081
+      - 8082
     ports:
       - 80:80
       - 8080:8080
@@ -19,6 +19,27 @@ services:
       - static:/srv/static
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+  api:
+    restart: always
+    env_file:
+      - .env
+    environment:
+      PROJECT_NAME: ${API_APP_PROJECT_NAME}
+      APP_HOST: ${API_APP_HOST}
+      APP_PORT: ${API_APP_PORT}
+      APP_SERVICE_URL: ${API_APP_SERVICE_URL}
+      AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
+      AMPQ_URL: ${MQ_BROKER_URL}
+      MIN_PAGE_SIZE: ${API_APP_MIN_PAGE_SIZE}
+      MAX_PAGE_SIZE: ${API_APP_MAX_PAGE_SIZE}
+      MAX_PAGE_NUMBER: ${API_APP_MAX_PAGE_NUMBER}
+      MAX_SEARCH_LENGTH: ${API_APP_MAX_SEARCH_LENGTH}
+    depends_on:
+      - storage
+      - elasticsearch
+    image: 345789231/api-service:latest
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
+      gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${API_APP_HOST}:${API_APP_PORT}"
 
   auth:
     restart: always

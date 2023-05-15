@@ -5,6 +5,10 @@ frame "UGC service" as ugc_service {
     database "Mongo UGC" as mongo_ugc
 }
 
+frame "Auth service" as auth_service {
+
+}
+
 frame "Movie API service" {
     frame "Fast API" as movies_api
 }
@@ -48,4 +52,8 @@ Admin <-- admin_panel: profiles
 movies_api <-- es: movie_reviews, movie_details
 
 ugc_service --> kafka: likes
+
+User <--> auth_service: Group API
+user_profile_api --> auth_service: checkGroupAccess
+
 @enduml
