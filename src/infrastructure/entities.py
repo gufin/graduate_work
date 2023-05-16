@@ -1,4 +1,4 @@
-from sqlalchemy import UUID, Column, MetaData
+from sqlalchemy import UUID, Column, MetaData, String, Boolean
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -12,5 +12,8 @@ metadata = Base.metadata
 class Profile(Base):
     __tablename__ = 'profiles'
 
-    id = Column(UUID, primary_key=True)
-    user_id = Column(UUID)
+    user_id = Column(UUID, primary_key=True)
+    first_name = Column(String(255))
+    last_name = Column(String(255))
+    patronymic = Column(String(255))
+    is_active = Column(Boolean, default=True)

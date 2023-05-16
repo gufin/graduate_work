@@ -15,6 +15,7 @@ httptools
 dependency_injector
 redis
 sqlalchemy
+sqlalchemy[asyncio]
 alembic
 asyncpg
 fastapi
