@@ -232,7 +232,7 @@ typing-extensions==4.5.0
     #   wemake-python-styleguide
 uvicorn==0.22.0
     # via -r requirements.in
-uvloop==0.17.0
+#uvloop==0.17.0
     # via -r requirements.in
 virtualenv==20.23.0
     # via pre-commit
@@ -242,6 +242,7 @@ wheel==0.40.0
     # via pip-tools
 wrapt==1.15.0
     # via astroid
+kafka-python==2.0.2
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip

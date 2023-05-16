@@ -31,6 +31,6 @@ RUN  pip install --upgrade pip \
 
 COPY ./src .
 
-RUN chmod 755 /app/docker-entrypoint.sh
+RUN chmod u+x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

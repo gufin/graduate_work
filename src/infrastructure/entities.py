@@ -1,4 +1,4 @@
-from sqlalchemy import UUID, Column, MetaData, String, Boolean
+from sqlalchemy import UUID, Column, MetaData, String, Boolean, UniqueConstraint
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -17,3 +17,13 @@ class Profile(Base):
     last_name = Column(String(255))
     patronymic = Column(String(255))
     is_active = Column(Boolean, default=True)
+
+
+class UserFavoriteMovies(Base):
+    __tablename__ = 'user_favorite_movies'
+    __table_args__ = (UniqueConstraint('user_id', 'movie_id'),)
+
+    id = Column(UUID, primary_key=True)
+    user_id = Column(UUID)
+    movie_id = Column(UUID)
+    is_deleted = Column(Boolean, default=False)

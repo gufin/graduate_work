@@ -1,13 +1,11 @@
 import typing
 
-from sqlalchemy import select, update, delete
+from sqlalchemy import and_, select, update, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructure.entities import Profile, engine
+from infrastructure.entities import Profile, engine, UserFavoriteMovies
 
-
-if typing.TYPE_CHECKING:
-    from models.profile import ProfileModel
+from models.profile import ProfileModel, UserFavoriteMoviesModel
 
 
 class ProfileService:
@@ -49,3 +47,28 @@ class ProfileService:
             async with session.begin():
                 await session.execute(delete(Profile).where(Profile.user_id == user_id))
             await session.commit()
+
+    async def favorite_movies_update(self, *,
+                                     user_favorite_movies_model: UserFavoriteMoviesModel):
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                # Поиск записи
+                user_favorite_movie = await session.query(
+                    UserFavoriteMovies).filter(
+                    and_(
+                        UserFavoriteMovies.user_id == user_favorite_movies_model.user_id,
+                        UserFavoriteMovies.movie_id == user_favorite_movies_model.movie_id,
+                    )
+                ).first()
+                if user_favorite_movie:
+                    user_favorite_movie.is_deleted = user_favorite_movies_model.is_deleted
+                else:
+                    user_favorite_movie = UserFavoriteMovies(
+                        user_id=user_favorite_movies_model.user_id,
+                        movie_id=user_favorite_movies_model.movie_id,
+                        is_deleted=user_favorite_movies_model.is_deleted,
+                    )
+                    session.add(user_favorite_movie)
+
+                await session.commit()
+
