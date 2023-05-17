@@ -94,10 +94,10 @@ services:
       - zookeeper
     env_file:
       - .env
-    #logging:
-    # driver: none
+    logging:
+     driver: none
     ports:
-      - 9092:9092
+      - ${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}
 
   on_favorite_movies_change_consumer:
     restart: always
@@ -107,7 +107,8 @@ services:
       - .env
     depends_on:
       - broker
-    command: sh -c "dockerize python cli.py on-favorite-movies-change-consumer"
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${KAFKA_BROKER_HOST}:${KAFKA_BROKER_HOST} &&
+      python cli.py on-favorite-movies-change-consumer"
 
   profile:
     restart: always
@@ -122,8 +123,8 @@ services:
       - profile-db
     ports:
       - ${PROFILE_APP_PORT}:${PROFILE_APP_PORT}
-    entrypoint: ["/app/docker-entrypoint.sh"]
-    #command: sh -c "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${KAFKA_BROKER_HOST}:${KAFKA_BROKER_HOST} &&
+      gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
 
   profile-db:
     image: postgres:14-alpine

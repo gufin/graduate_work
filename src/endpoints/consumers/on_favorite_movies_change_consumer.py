@@ -3,7 +3,7 @@ import json
 from dependency_injector.wiring import inject, Provide
 
 from core.containers import Container
-from endpoints.consumers.models import KafkaMessageModel
+from models.models import KafkaMessageModel
 from infrastructure.kafka_broker import KConsumer
 from models.profile import UserFavoriteMoviesModel
 from use_cases.profile_service import ProfileService
