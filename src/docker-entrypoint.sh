@@ -5,6 +5,6 @@ while ! nc -z $DB_HOST $DB_PORT; do
   sleep 1
 done
 
-alembic -c /app/alembic.ini upgrade head && python cli.py ugc_actions_consumer_start
+alembic -c /app/alembic.ini upgrade head && python cli.py ugc-actions-consumer-start
 
 exec "$@"
