@@ -10,7 +10,7 @@ from use_cases.profile_service import ProfileService
 
 
 @inject
-def handle_views_message(message: KafkaMessageModel, profile_service: ProfileService = Provide[Container.profile_service]):
+def handle_favorite_movies_message(message: KafkaMessageModel, profile_service: ProfileService = Provide[Container.profile_service]):
     try:
         payload = json.loads(message.value)
         profile_service.favorite_movies_update(
@@ -20,7 +20,7 @@ def handle_views_message(message: KafkaMessageModel, profile_service: ProfileSer
         pass
 
 
-def get_ugc_actions_consumer(
+def get_on_favorite_movies_change_consumer(
     *,
     bootstrap_servers: list[str],
     auto_offset_reset: str,
@@ -28,7 +28,7 @@ def get_ugc_actions_consumer(
 ) -> KConsumer:
     return KConsumer(
         'user-favorite-movies',
-        process_message=handle_views_message,
+        process_message=handle_favorite_movies_message,
         bootstrap_servers=bootstrap_servers,
         auto_offset_reset=auto_offset_reset,
         group_id=group_id,

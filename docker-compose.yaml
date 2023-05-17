@@ -99,6 +99,16 @@ services:
     ports:
       - 9092:9092
 
+  on_favorite_movies_change_consumer:
+    restart: always
+    build:
+      context: .
+    env_file:
+      - .env
+    depends_on:
+      - broker
+    command: sh -c "dockerize python cli.py on-favorite-movies-change-consumer"
+
   profile:
     restart: always
     build:
@@ -112,7 +122,8 @@ services:
       - profile-db
     ports:
       - ${PROFILE_APP_PORT}:${PROFILE_APP_PORT}
-    command: sh -c "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
+    entrypoint: ["/app/docker-entrypoint.sh"]
+    #command: sh -c "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
 
   profile-db:
     image: postgres:14-alpine

@@ -2,7 +2,7 @@ import click
 
 from core.containers import Container
 from core.settings import settings
-from endpoints.consumers.ugc_actions_consumer import get_ugc_actions_consumer
+from endpoints.consumers.ugc_actions_consumer import get_on_favorite_movies_change_consumer
 from infrastructure.kafka_broker import start
 
 
@@ -36,7 +36,7 @@ def cli():
     default=settings.kafka_settings.group_id,
     show_default=True,
 )
-def ugc_actions_consumer_start(
+def on_favorite_movies_change_consumer(
     host: str,
     port: int,
     auto_offset_reset: str,
@@ -44,7 +44,7 @@ def ugc_actions_consumer_start(
 ):
     container = Container()
     container.config.from_pydantic(settings)
-    consumer = get_ugc_actions_consumer(
+    consumer = get_on_favorite_movies_change_consumer(
         bootstrap_servers=[f'{host}:{port}'],
         auto_offset_reset=auto_offset_reset,
         group_id=group_id,
