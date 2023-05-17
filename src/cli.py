@@ -2,7 +2,7 @@ import click
 
 from core.containers import Container
 from core.settings import settings
-from endpoints.consumers.ugc_actions_consumer import get_on_favorite_movies_change_consumer
+from endpoints.consumers.on_favorite_movies_change_consumer import get_on_favorite_movies_change_consumer
 from infrastructure.kafka_broker import start
 
 

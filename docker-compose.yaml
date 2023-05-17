@@ -123,8 +123,7 @@ services:
       - profile-db
     ports:
       - ${PROFILE_APP_PORT}:${PROFILE_APP_PORT}
-    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${KAFKA_BROKER_HOST}:${KAFKA_BROKER_HOST} &&
-      gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
+    command: sh -c "gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
 
   profile-db:
     image: postgres:14-alpine
