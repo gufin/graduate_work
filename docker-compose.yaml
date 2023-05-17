@@ -81,6 +81,35 @@ services:
       - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - auth-data:/var/lib/postgresql/data
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.2.1
+    restart: always
+    env_file:
+      - .env
+
+  broker:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    depends_on:
+      - zookeeper
+    env_file:
+      - .env
+    logging:
+     driver: none
+    ports:
+      - ${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}
+
+  on_favorite_movies_change_consumer:
+    restart: always
+    build:
+      context: .
+    env_file:
+      - .env
+    depends_on:
+      - broker
+    command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${KAFKA_BROKER_HOST}:${KAFKA_BROKER_HOST} &&
+      python cli.py on-favorite-movies-change-consumer"
+
   profile:
     restart: always
     build:
