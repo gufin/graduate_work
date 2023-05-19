@@ -1,9 +1,41 @@
 import json
 from collections.abc import Callable
+from time import sleep
 from typing import Any
 
-from kafka import KafkaConsumer
-from time import sleep
+from kafka import KafkaConsumer, KafkaProducer
+from pydantic import BaseModel
+
+from models.message import BrokerMessageModel, UseCase
+from models.profile import ProfileMovieReadModel, ProfileReadModel
+from use_cases.abstract_publisher import AbstractPublisher
+
+
+class KProducer(AbstractPublisher):
+    def __init__(self, *, config: dict, topic: str):
+        self.kafka_producer = KafkaProducer(
+            bootstrap_servers=[f'{config.get("host")}:{config.get("port")}'],
+        )
+        self.topic = topic
+
+    def send(self, *, message: BrokerMessageModel):
+        value_model = None
+        key = ''
+        match message.use_case:
+            case UseCase.profile_change.value:
+                value_model = ProfileReadModel(**message.payload)
+                key = str(value_model.id)
+            case UseCase.profile_movie_change:
+                value_model = ProfileMovieReadModel(**message.payload)
+                key = str(value_model.profile_id)
+        self._on_send(model=value_model, key=key)
+
+    def _on_send(self, *, key: str, model: BaseModel = None):
+        self.kafka_producer.send(
+            self.topic,
+            json.dumps(model.json()).encode(),
+            key.encode(),
+        )
 
 
 class KConsumer(KafkaConsumer):

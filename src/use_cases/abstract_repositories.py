@@ -1,15 +1,27 @@
 from abc import ABCMeta, abstractmethod
 
+from models.profile import (
+    ProfileCreateModel,
+    ProfileMovieReadModel,
+    ProfileMovieUpdateModel,
+    ProfileReadModel,
+    ProfileUpdateModel,
+)
 
-class AbstractStorage(metaclass=ABCMeta):
+
+class AbstractProfileRepository(metaclass=ABCMeta):
     @abstractmethod
-    async def create(self, *, data): pass
-    
+    async def create(self, *, user_id: str, create_model: ProfileCreateModel) -> ProfileReadModel:
+        pass
+
     @abstractmethod
-    async def update(self, *, row_id: str, data): pass
-    
+    async def update(self, *, user_id: str, update_model: ProfileUpdateModel) -> ProfileReadModel:
+        pass
+
     @abstractmethod
-    async def read(self, *, row_id: str | None): pass
-    
+    async def read(self, *, user_id: str) -> ProfileReadModel:
+        pass
+
     @abstractmethod
-    async def delete(self, *, row_id: str): pass
+    async def movie_update(self, *, update_model: ProfileMovieUpdateModel) -> ProfileMovieReadModel:
+        pass

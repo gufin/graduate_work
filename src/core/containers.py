@@ -1,14 +1,26 @@
 from dependency_injector import containers, providers
 
+from infrastructure.celery_worker import CeleryWorker
+from infrastructure.kafka_broker import KProducer
+from infrastructure.postgres_profile_repository import PostgresProfileRepository
 from use_cases.profile_service import ProfileService
-from infrastructure.storage import PostgreStorage
 
 
 class Container(containers.DeclarativeContainer):
-    wiring_config = containers.WiringConfiguration(packages=['endpoints'])
     config = providers.Configuration()
+
+    profile_repository = providers.Singleton(PostgresProfileRepository)
+
+    worker = providers.Singleton(CeleryWorker)
+
+    publisher = providers.Singleton(
+        KProducer,
+        config=config.kafka_settings,
+        topic='profile',
+    )
 
     profile_service = providers.Factory(
         ProfileService,
-        storage=PostgreStorage(),
+        repository=profile_repository,
+        worker=worker,
     )
