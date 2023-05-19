@@ -1,57 +1,54 @@
-import typing
-
-from sqlalchemy import and_
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from infrastructure.entities import Profile, engine, UserFavoriteMovies
-from absctract_repositories import AbstractStorage
-
-from models.profile import ProfileModel, UserFavoriteMoviesModel
+from models.message import UseCase
+from models.profile import ProfileCreateModel, ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
+from models.task import JobType
+from use_cases.abstract_repositories import AbstractProfileRepository
+from use_cases.abstract_worker import AbstractWorker
 
 
 class ProfileService:
-    def __init__(self, *, storage: AbstractStorage):
-        self.storage = storage
+    def __init__(
+        self,
+        *,
+        repository: AbstractProfileRepository,
+        worker: AbstractWorker,
+    ):
+        self.repository = repository
+        self.worker = worker
 
-    async def create(self, *, profile: 'ProfileModel'):
-        """Создать профиль пользователя"""
-        await self.storage.create(data=profile)
+    async def create(self, *, user_id: str, profile_model: ProfileCreateModel) -> ProfileReadModel:
+        create_result = await self.repository.create(user_id=user_id, create_model=profile_model)
+        self._send_message(use_case=UseCase.profile_change, payload=create_result.dict())
+        return create_result
 
-    async def update(self, *, user_id: str, profile: 'ProfileModel'):
-        """Обновить профиль пользователя"""
-        await self.storage.update(user_id=user_id, data=profile)
+    async def get(self, *, user_id: str) -> ProfileReadModel:
+        read_result = await self.repository.read(user_id=user_id)
+        self._send_message(use_case=UseCase.profile_change, payload=read_result.dict())
+        return read_result
 
-    async def get(self, user_id: str | None = None):
-        """Получить профиль одного пользователя по индефикатору
-        или если индефитор пустой показать всех.
-        """
-        await self.storage.get(user_id=user_id)
+    async def update(self, *, user_id: str, update_model: ProfileUpdateModel) -> ProfileReadModel:
+        update_result = await self.repository.update(user_id=user_id, update_model=update_model)
+        self._send_message(use_case=UseCase.profile_change, payload=update_result.dict())
+        return update_result
 
-    async def delete(self, user_id: str):
-        """Заморозить профиль пользователя"""
-        await self.storage.delete(user_id=user_id)
+    async def deactivate(self, *, user_id: str) -> ProfileReadModel:
+        deactivate_result = await self.repository.update(
+            user_id=user_id,
+            update_model=ProfileUpdateModel(is_active=False),
+        )
+        self._send_message(use_case=UseCase.profile_change, payload=deactivate_result.dict())
+        return deactivate_result
 
-    async def favorite_movies_update(self, *,
-                                     user_favorite_movies_model: UserFavoriteMoviesModel):
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                # Поиск записи
-                user_favorite_movie = await session.query(
-                    UserFavoriteMovies).filter(
-                    and_(
-                        UserFavoriteMovies.user_id == user_favorite_movies_model.user_id,
-                        UserFavoriteMovies.movie_id == user_favorite_movies_model.movie_id,
-                    )
-                ).first()
-                if user_favorite_movie:
-                    user_favorite_movie.is_deleted = user_favorite_movies_model.is_deleted
-                else:
-                    user_favorite_movie = UserFavoriteMovies(
-                        user_id=user_favorite_movies_model.user_id,
-                        movie_id=user_favorite_movies_model.movie_id,
-                        is_deleted=user_favorite_movies_model.is_deleted,
-                    )
-                    session.add(user_favorite_movie)
+    async def movie_update(
+        self,
+        *,
+        profile_movie_update_model: ProfileMovieUpdateModel,
+    ):
+        update_result = await self.repository.movie_update(update_model=profile_movie_update_model)
+        self._send_message(use_case=UseCase.profile_movie_change, payload=update_result.dict())
 
-                await session.commit()
-
+    def _send_message(self, *, use_case: UseCase, payload: dict):
+        self.worker.start_job(
+            job_type=JobType.SEND_MESSAGE_TASK,
+            use_case=use_case.value,
+            payload=payload,
+        )

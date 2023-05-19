@@ -30,5 +30,8 @@ RUN  pip install --upgrade pip \
      && pip install -r requirements.txt
 
 COPY ./src .
+COPY ./src/endpoints/tasks.py ./tasks.py
 
 RUN chmod u+x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]

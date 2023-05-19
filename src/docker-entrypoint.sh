@@ -5,6 +5,4 @@ while ! nc -z $DB_HOST $DB_PORT; do
   sleep 1
 done
 
-alembic -c /app/alembic.ini upgrade head
-
 exec "$@"

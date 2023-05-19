@@ -49,6 +49,7 @@ def on_favorite_movies_change_consumer(
         auto_offset_reset=auto_offset_reset,
         group_id=group_id,
     )
+    container.wire(modules=['endpoints.consumers.on_favorite_movies_change_consumer'])
     start(instance=consumer)
 
 
