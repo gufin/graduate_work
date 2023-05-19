@@ -100,6 +100,7 @@ services:
       - ${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}
 
   on_favorite_movies_change_consumer:
+    image: profile-service:latest
     restart: always
     build:
       context: .
@@ -113,6 +114,7 @@ services:
     command: sh -c "dockerize python cli.py on-favorite-movies-change-consumer"
 
   profile:
+    image: profile-service:latest
     restart: always
     build:
       context: .
@@ -208,6 +210,7 @@ services:
       - ${ES_PORT}:${ES_PORT}
 
   worker:
+    image: profile-service:latest
     restart: always
     build:
       context: .
