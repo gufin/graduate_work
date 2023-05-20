@@ -25,3 +25,7 @@ class AbstractProfileRepository(metaclass=ABCMeta):
     @abstractmethod
     async def movie_update(self, *, update_model: ProfileMovieUpdateModel) -> ProfileMovieReadModel:
         pass
+
+    @abstractmethod
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list:
+        pass

@@ -1,5 +1,6 @@
 from models.message import UseCase
-from models.profile import ProfileCreateModel, ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
+from models.profile import ProfileCreateModel, ProfileMovieReadModel, \
+    ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
 from models.task import JobType
 from use_cases.abstract_repositories import AbstractProfileRepository
 from use_cases.abstract_worker import AbstractWorker
@@ -52,3 +53,6 @@ class ProfileService:
             use_case=use_case.value,
             payload=payload,
         )
+
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list:
+        return await self.repository.get_favorite_movie_ids(user_id=user_id)

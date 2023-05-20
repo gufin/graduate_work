@@ -90,3 +90,22 @@ class PostgresProfileRepository(AbstractProfileRepository):
             phone=profile.phone,
             is_active=profile.is_active,
         )
+
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list[ProfileMovieReadModel]:
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                profile = await session.execute(
+                    select(Profile.id).where(Profile.user_id == user_id)
+                )
+                profile_id = profile.scalar_one()
+
+                stmt = select(ProfileMovie).where(
+                    (ProfileMovie.profile_id == profile_id)
+                    # & (ProfileMovie.is_deleted == False)
+                )
+                result = await session.execute(stmt)
+
+                return [ProfileMovieReadModel(profile_id=profile_id,
+                                              movie_id=row.movie_id,
+                                              is_deleted=False) for row in
+                        result.scalars().all()]
