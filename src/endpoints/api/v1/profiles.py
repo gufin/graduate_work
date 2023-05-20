@@ -2,10 +2,20 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 
 from core.containers import Container
-from models.profile import ProfileCreateModel, ProfileReadModel, ProfileUpdateModel
+from models.profile import ProfileCreateModel, ProfileMovieReadModel, \
+    ProfileReadModel, ProfileUpdateModel
 from use_cases.profile_service import ProfileService
 
 router = APIRouter()
+
+
+@router.get('/{user_id}/favorite_movie_ids')
+@inject
+async def read_favorite_movie_ids(
+    user_id: str,
+    profile_service: ProfileService = Depends(Provide[Container.profile_service]),
+) -> list:
+    return await profile_service.get_favorite_movie_ids(user_id=user_id)
 
 
 @router.post('/{user_id}')
