@@ -24,3 +24,5 @@ uvicorn
 uvloop
 kafka-python==2.0.2
 celery
+aiohttp
+aiofiles

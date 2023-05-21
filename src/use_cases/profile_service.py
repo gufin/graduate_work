@@ -1,6 +1,5 @@
 from models.message import UseCase
-from models.profile import ProfileCreateModel, ProfileMovieReadModel, \
-    ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
+from models.profile import ProfileCreateModel, ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
 from models.task import JobType
 from use_cases.abstract_repositories import AbstractProfileRepository
 from use_cases.abstract_worker import AbstractWorker
@@ -47,12 +46,12 @@ class ProfileService:
         update_result = await self.repository.movie_update(update_model=profile_movie_update_model)
         self._send_message(use_case=UseCase.profile_movie_change, payload=update_result.dict())
 
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list:
+        return await self.repository.get_favorite_movie_ids(user_id=user_id)
+
     def _send_message(self, *, use_case: UseCase, payload: dict):
         self.worker.start_job(
             job_type=JobType.SEND_MESSAGE_TASK,
             use_case=use_case.value,
             payload=payload,
         )
-
-    async def get_favorite_movie_ids(self, *, user_id: str) -> list:
-        return await self.repository.get_favorite_movie_ids(user_id=user_id)

@@ -13,9 +13,9 @@ from use_cases.abstract_publisher import AbstractPublisher
 
 class KProducer(AbstractPublisher):
     def __init__(self, *, config: dict, topic: str):
-        self.kafka_producer = KafkaProducer(
-            bootstrap_servers=[f'{config.get("host")}:{config.get("port")}'],
-        )
+        host = config.get('host')
+        port = config.get('port')
+        self.kafka_producer = KafkaProducer(bootstrap_servers=[f'{host}:{port}'])
         self.topic = topic
 
     def send(self, *, message: BrokerMessageModel):
@@ -57,7 +57,7 @@ class KConsumer(KafkaConsumer):
     @staticmethod
     def _default_handler(message: Any):
         record = json.loads(message.value)
-        print(record)
+        print(record) # noqa
 
 
 def start(*, instance: KConsumer):

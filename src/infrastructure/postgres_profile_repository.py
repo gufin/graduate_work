@@ -46,7 +46,7 @@ class PostgresProfileRepository(AbstractProfileRepository):
     async def read(self, user_id: str) -> ProfileReadModel:
         async with AsyncSession(engine) as session:
             async with session.begin():
-                read_result: Profile = await session.scalar(select(Profile).where(Profile.user_id == user_id))
+                read_result: Profile = await session.scalar(select(Profile).where(Profile.user_id == user_id)) # noqa
                 return self._convert_profile_to_model(profile=read_result)
 
     async def movie_update(self, *, update_model: ProfileMovieUpdateModel) -> ProfileMovieReadModel:
@@ -79,6 +79,13 @@ class PostgresProfileRepository(AbstractProfileRepository):
             await session.commit()
             return update_result
 
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list[str]:
+        async with AsyncSession(engine) as session:
+            async with session.begin():
+                profile: Profile = await session.scalars(select(Profile).join(Profile.movie).where(Profile.user_id == user_id)) # noqa
+
+                return [row.movie_id for row in profile.movie.all()]
+
     @staticmethod
     def _convert_profile_to_model(profile: Profile) -> ProfileReadModel:
         return ProfileReadModel(
@@ -90,22 +97,3 @@ class PostgresProfileRepository(AbstractProfileRepository):
             phone=profile.phone,
             is_active=profile.is_active,
         )
-
-    async def get_favorite_movie_ids(self, *, user_id: str) -> list[ProfileMovieReadModel]:
-        async with AsyncSession(engine) as session:
-            async with session.begin():
-                profile = await session.execute(
-                    select(Profile.id).where(Profile.user_id == user_id)
-                )
-                profile_id = profile.scalar_one()
-
-                stmt = select(ProfileMovie).where(
-                    (ProfileMovie.profile_id == profile_id)
-                    # & (ProfileMovie.is_deleted == False)
-                )
-                result = await session.execute(stmt)
-
-                return [ProfileMovieReadModel(profile_id=profile_id,
-                                              movie_id=row.movie_id,
-                                              is_deleted=False) for row in
-                        result.scalars().all()]

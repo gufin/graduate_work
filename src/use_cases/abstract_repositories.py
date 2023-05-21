@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 
 from models.profile import (
     ProfileCreateModel,
@@ -27,5 +27,18 @@ class AbstractProfileRepository(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    async def get_favorite_movie_ids(self, *, user_id: str) -> list:
+    async def get_favorite_movie_ids(self, *, user_id: str) -> list: # noqa
         pass
+
+
+class AbstractAuthRepository(ABC):
+    @abstractmethod
+    async def verify(self, *, token: str, roles: str, headers: dict) -> bool:
+        pass
+
+
+auth_client: AbstractAuthRepository | None = None
+
+
+def get_auth_client() -> AbstractAuthRepository:
+    return auth_client

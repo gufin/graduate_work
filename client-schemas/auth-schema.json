@@ -1,0 +1,818 @@
+{
+  "basePath": "/api/v1",
+  "consumes": ["application/json"],
+  "definitions": {
+    "Auth Token Refresh": {
+      "properties": {
+        "access_token": {
+          "description": "User access token",
+          "readOnly": true,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "DeleteRole": {
+      "properties": {
+        "id": {
+          "description": "Role id",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "type": "object"
+    },
+    "DeleteRoles": {
+      "properties": {
+        "roles": {
+          "items": {
+            "$ref": "#/definitions/DeleteRole"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["roles"],
+      "type": "object"
+    },
+    "Role": {
+      "properties": {
+        "code": {
+          "description": "Role code",
+          "type": "string"
+        },
+        "id": {
+          "description": "Role id",
+          "readOnly": true,
+          "type": "string"
+        }
+      },
+      "required": ["code"],
+      "type": "object"
+    },
+    "UpdateRole": {
+      "properties": {
+        "code": {
+          "description": "Role code",
+          "type": "string"
+        },
+        "id": {
+          "description": "Role id",
+          "type": "string"
+        }
+      },
+      "required": ["code", "id"],
+      "type": "object"
+    },
+    "UpdateRoles": {
+      "properties": {
+        "roles": {
+          "items": {
+            "$ref": "#/definitions/UpdateRole"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["roles"],
+      "type": "object"
+    },
+    "User Access": {
+      "properties": {
+        "access_granted": {
+          "readOnly": true,
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "User Auth": {
+      "properties": {
+        "access_token": {
+          "description": "User access token",
+          "readOnly": true,
+          "type": "string"
+        },
+        "email": {
+          "description": "User email",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        },
+        "refresh_token": {
+          "description": "User refresh token",
+          "readOnly": true,
+          "type": "string"
+        }
+      },
+      "required": ["email", "password"],
+      "type": "object"
+    },
+    "User Email Change": {
+      "properties": {
+        "new_email": {
+          "description": "User new email",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        }
+      },
+      "required": ["new_email", "password"],
+      "type": "object"
+    },
+    "User Password Reset": {
+      "properties": {
+        "confirm_new_password": {
+          "description": "User new password confirmation",
+          "type": "string"
+        },
+        "new_password": {
+          "description": "User new password",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        }
+      },
+      "required": ["confirm_new_password", "new_password", "password"],
+      "type": "object"
+    },
+    "User Social Auth": {
+      "properties": {
+        "access_token": {
+          "description": "User access token",
+          "readOnly": true,
+          "type": "string"
+        },
+        "refresh_token": {
+          "description": "User refresh token",
+          "readOnly": true,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UserCreate": {
+      "properties": {
+        "confirm_password": {
+          "description": "User password confirmation",
+          "type": "string"
+        },
+        "email": {
+          "description": "User Email",
+          "type": "string"
+        },
+        "first_name": {
+          "description": "User first name",
+          "type": "string"
+        },
+        "id": {
+          "description": "User id",
+          "readOnly": true,
+          "type": "string"
+        },
+        "last_name": {
+          "description": "User last name",
+          "type": "string"
+        },
+        "password": {
+          "description": "User password",
+          "type": "string"
+        }
+      },
+      "required": ["confirm_password", "email", "first_name", "password"],
+      "type": "object"
+    },
+    "UserProfile": {
+      "properties": {
+        "first_name": {
+          "description": "User first name",
+          "type": "string"
+        },
+        "id": {
+          "description": "User profile id",
+          "readOnly": true,
+          "type": "string"
+        },
+        "last_name": {
+          "description": "User last name",
+          "type": "string"
+        },
+        "roles": {
+          "items": {
+            "description": "User role code",
+            "readOnly": true,
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
+    },
+    "UserProfileHistory": {
+      "properties": {
+        "entered_at": {
+          "description": "User profile entered",
+          "format": "date-time",
+          "readOnly": true,
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "UserProfileHistoryPage": {
+      "properties": {
+        "list": {
+          "items": {
+            "$ref": "#/definitions/UserProfileHistory"
+          },
+          "readOnly": true,
+          "type": "array"
+        },
+        "total": {
+          "description": "User profile history total items count",
+          "readOnly": true,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "UserRole": {
+      "properties": {
+        "id": {
+          "description": "Role id",
+          "type": "string"
+        }
+      },
+      "required": ["id"],
+      "type": "object"
+    },
+    "UserRoles": {
+      "properties": {
+        "roles": {
+          "items": {
+            "$ref": "#/definitions/UserRole"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["roles"],
+      "type": "object"
+    }
+  },
+  "info": {
+    "description": "A simple Auth API",
+    "title": "Auth API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/auth/change-email": {
+      "post": {
+        "operationId": "change-email",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User%20Email%20Change"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/auth/check-user/{granted_roles}": {
+      "get": {
+        "operationId": "check-user",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/User%20Access"
+            }
+          }
+        },
+        "tags": ["auth"]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "granted_roles",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User%20Auth"
+            }
+          },
+          {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/User%20Auth"
+            }
+          }
+        },
+        "security": [],
+        "tags": ["auth"]
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/auth/oauth-verify/{social_name}": {
+      "get": {
+        "operationId": "social-auth",
+        "parameters": [
+          {
+            "default": "",
+            "description": "Auth code",
+            "in": "query",
+            "name": "code",
+            "required": true,
+            "type": "string"
+          }, {
+            "default": "",
+            "description": "Auth state",
+            "in": "query",
+            "name": "state",
+            "required": true,
+            "type": "string"
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/User%20Social%20Auth"
+            }
+          }
+        },
+        "security": [],
+        "tags": ["auth"]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "social_name",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "refresh",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Auth%20Token%20Refresh"
+            }
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "reset-password",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User%20Password%20Reset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "tags": ["auth"]
+      }
+    },
+    "/roles": {
+      "delete": {
+        "operationId": "delete roles",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteRoles"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/DeleteRole"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["roles"]
+      },
+      "get": {
+        "operationId": "role list",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Role"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["roles"]
+      },
+      "post": {
+        "operationId": "new role",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Role"
+            }
+          }
+        },
+        "tags": ["roles"]
+      },
+      "put": {
+        "operationId": "change roles",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateRoles"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Role"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["roles"]
+      }
+    },
+    "/users": {
+      "post": {
+        "operationId": "new user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserCreate"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/UserCreate"
+            }
+          }
+        },
+        "security": [],
+        "tags": ["users"]
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "operationId": "read user profile",
+        "parameters": [
+          {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }
+        },
+        "tags": ["users"]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "put": {
+        "operationId": "edit user profile",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/UserProfile"
+            }
+          }
+        },
+        "tags": ["users"]
+      }
+    },
+    "/users/{user_id}/history": {
+      "get": {
+        "operationId": "read user profile history",
+        "parameters": [
+          {
+            "default": 1,
+            "description": "Page number",
+            "in": "query",
+            "name": "page[number]",
+            "type": "integer"
+          }, {
+            "default": 10,
+            "description": "Page size",
+            "in": "query",
+            "name": "page[size]",
+            "type": "integer"
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/UserProfileHistoryPage"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["users"]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "type": "string"
+        }
+      ]
+    },
+    "/users/{user_id}/roles": {
+      "delete": {
+        "operationId": "delete user roles",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRoles"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/DeleteRole"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["users"]
+      },
+      "parameters": [
+        {
+          "in": "path",
+          "name": "user_id",
+          "required": true,
+          "type": "string"
+        }
+      ],
+      "post": {
+        "operationId": "add user roles",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "payload",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserRoles"
+            }
+          }, {
+            "description": "An optional fields mask",
+            "format": "mask",
+            "in": "header",
+            "name": "X-Fields",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "items": {
+                "$ref": "#/definitions/Role"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "tags": ["users"]
+      }
+    }
+  },
+  "produces": ["application/json"],
+  "responses": {
+    "MaskError": {
+      "description": "When any error occurs on mask"
+    },
+    "ParseError": {
+      "description": "When a mask can't be parsed"
+    },
+    "UseCaseError": {},
+    "ValidationError": {}
+  },
+  "security": [
+    {
+      "api_key": []
+    }
+  ],
+  "securityDefinitions": {
+    "api_key": {
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey"
+    }
+  },
+  "swagger": "2.0",
+  "tags": [
+    {
+      "description": "Auth operations",
+      "name": "auth"
+    }, {
+      "description": "User operations",
+      "name": "users"
+    }, {
+      "description": "Role operations",
+      "name": "roles"
+    }
+  ]
+}

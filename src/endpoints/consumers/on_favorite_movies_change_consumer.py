@@ -4,7 +4,6 @@ import json
 from dependency_injector.wiring import Provide, inject
 
 from core.containers import Container
-from core.settings import settings
 from endpoints.consumers.models import KafkaMessageModel
 from infrastructure.kafka_broker import KConsumer
 from models.profile import ProfileMovieUpdateModel

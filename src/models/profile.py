@@ -40,4 +40,4 @@ class ProfileMovieUpdateModel(BaseModel):
 class ProfileMovieReadModel(BaseModel):
     profile_id: uuid.UUID
     movie_id: uuid.UUID
-    is_deleted: bool = False
+    is_deleted: bool
