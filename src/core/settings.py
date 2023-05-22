@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     postgres_dsl: PostgresDsl = PostgresDsl()
     schema_name: str = Field(..., env='PROFILE_DB_SCHEMA_NAME')
     kafka_settings: KafkaSettings = KafkaSettings()
+    integration_off: str
 
     class Config:
         env_file = '.env.example', '.env'
