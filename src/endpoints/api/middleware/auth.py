@@ -31,7 +31,7 @@ class JWTBearer(HTTPBearer):
                 )
             return credentials.credentials
         raise HTTPException(
-            status_code=HTTPStatus.UNAUTHORIZED, detail='Invalid authorization code.'
+            status_code=HTTPStatus.UNAUTHORIZED, detail='Invalid authorization code.',
         )
 
 
