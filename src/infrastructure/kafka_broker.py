@@ -27,7 +27,7 @@ class KProducer(AbstractPublisher):
             case UseCase.profile_movie_change.value:
                 value_model = ProfileMovieReadModel(**message.payload)
                 key = str(value_model.profile_id)
-        self._on_send(model=BrokerMessageModel(use_case=message.use_case, payload=value_model.dict()), key=key)
+        self._on_send(model=BrokerMessageModel(use_case=message.use_case, payload=value_model.dict()), key=key) # noqa
 
     def _on_send(self, *, key: str, model: BrokerMessageModel):
         self.kafka_producer.send(
