@@ -27,7 +27,9 @@ async def new_profile(
     profile_create_model: ProfileCreateModel,
     profile_service: ProfileService = Depends(Provide[Container.profile_service]),
 ) -> ProfileReadModel:
-    return await profile_service.create(user_id=user_id, profile_model=profile_create_model)
+    return await profile_service.create(
+        user_id=user_id, profile_model=profile_create_model
+    )
 
 
 @router.get('/{user_id}', dependencies=[Depends(jwt_auth)])
@@ -66,4 +68,6 @@ async def update_profile_by_group_and_user_id(
     update_model: ProfileUpdateModel,
     profile_service: ProfileService = Depends(Provide[Container.profile_service]),
 ) -> Optional[ProfileReadModel]:
-    return await profile_service.update_profile_by_group_and_user_id(group_id=group_id, user_id=user_id, update_model=update_model)
+    return await profile_service.update_profile_by_group_and_user_id(
+        group_id=group_id, user_id=user_id, update_model=update_model
+    )

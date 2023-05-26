@@ -51,19 +51,25 @@ class ProfileService:
     async def get_favorite_movie_ids(self, *, user_id: str) -> list:
         return await self.repository.get_favorite_movie_ids(user_id=user_id)
 
+    async def update_profile_by_group_and_user_id(
+        self,
+        group_id: str,
+        user_id: str,
+        update_model: ProfileUpdateModel,
+    ) -> Optional[ProfileReadModel]:
+        profile_in_group = await get_auth_client().is_profile_in_group(
+            group_id=group_id,
+            user_id=user_id,
+        )
+        return (
+            await self.update(user_id=user_id, update_model=update_model)
+            if profile_in_group
+            else None
+        )
+
     def _send_message(self, *, use_case: UseCase, payload: dict):
         self.worker.start_job(
             job_type=JobType.SEND_MESSAGE_TASK,
             use_case=use_case.value,
             payload=payload,
-        )
-
-    async def update_profile_by_group_and_user_id(self, group_id: str, user_id: str,
-                                            update_model: ProfileUpdateModel) -> Optional[ProfileReadModel]:
-
-        profile_in_group = await get_auth_client().is_profile_in_group(group_id=group_id, user_id=user_id)
-        return (
-            await self.update(user_id=user_id, update_model=update_model)
-            if profile_in_group
-            else None
         )

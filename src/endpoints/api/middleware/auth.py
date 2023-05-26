@@ -25,9 +25,14 @@ class JWTBearer(HTTPBearer):
                 headers={'X-Request-Id': request.headers.get('x-request-id')},
             )
             if not is_valid:
-                raise HTTPException(status_code=HTTPStatus.FORBIDDEN, detail='Invalid token or expired token.')
+                raise HTTPException(
+                    status_code=HTTPStatus.FORBIDDEN,
+                    detail='Invalid token or expired token.',
+                )
             return credentials.credentials
-        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail='Invalid authorization code.')
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED, detail='Invalid authorization code.'
+        )
 
 
 jwt_auth = JWTBearer()

@@ -37,7 +37,7 @@ class AbstractAuthRepository(ABC):
         pass
 
     @abstractmethod
-    async def is_profile_in_group(self, *, group_id: str,  user_id: str) -> bool:
+    async def is_profile_in_group(self, *, group_id: str, user_id: str) -> bool:
         pass
 
 
