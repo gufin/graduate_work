@@ -29,6 +29,7 @@ services:
       APP_PORT: ${API_APP_PORT}
       APP_SERVICE_URL: ${API_APP_SERVICE_URL}
       AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
+      PROFILE_SERVICE_URL: ${PROFILE_APP_SERVICE_URL}
       AMPQ_URL: ${MQ_BROKER_URL}
       MIN_PAGE_SIZE: ${API_APP_MIN_PAGE_SIZE}
       MAX_PAGE_SIZE: ${API_APP_MAX_PAGE_SIZE}
@@ -113,6 +114,21 @@ services:
       - broker
     command: sh -c "dockerize python cli.py on-favorite-movies-change-consumer"
 
+  on_profile_change_consumer:
+    image: 345789231/etl-service
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${ADMIN_DB_NAME}
+      POSTGRES_PASSWORD: ${ADMIN_DB_PASSWORD}
+      POSTGRES_USER: ${ADMIN_DB_USER}
+      DB_HOST: ${ADMIN_DB_HOST}
+      DB_PORT: ${ADMIN_DB_PORT}
+    depends_on:
+      - broker
+    command: sh -c "python cli.py on-profile-change-consumer"
+
   profile:
     image: profile-service:latest
     restart: always
@@ -125,8 +141,6 @@ services:
       DB_PORT: ${PROFILE_DB_PORT}
     depends_on:
       - profile-db
-    ports:
-      - ${PROFILE_APP_PORT}:${PROFILE_APP_PORT}
     command: sh -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
 
   profile-db:
@@ -142,8 +156,6 @@ services:
     volumes:
       - ./db-schemas/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - profile-data:/var/lib/postgresql/data
-    ports:
-      - 5432:5432
 
   admin:
     image: 345789231/admin-panel-service

@@ -9,7 +9,7 @@ from use_cases.profile_service import ProfileService
 router = APIRouter()
 
 
-@router.get('/{user_id}/favorite_movie_ids', dependencies=[Depends(jwt_auth)])
+@router.get('/{user_id}/favorite_movie_ids')
 @inject
 async def read_favorite_movie_ids(
     user_id: str,

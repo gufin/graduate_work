@@ -82,9 +82,11 @@ class PostgresProfileRepository(AbstractProfileRepository):
     async def get_favorite_movie_ids(self, *, user_id: str) -> list[str]:
         async with AsyncSession(engine) as session:
             async with session.begin():
-                profile: Profile = await session.scalars(select(Profile).join(Profile.movie).where(Profile.user_id == user_id)) # noqa
-
-                return [row.movie_id for row in profile.movie.all()]
+                profile: Profile = await session.scalar(select(Profile).where(
+                    Profile.user_id == user_id,
+                ))
+                movies = await session.execute(select(ProfileMovie).where(ProfileMovie.profile == profile)) # noqa
+                return [row[0].movie_id for row in movies.all()]
 
     @staticmethod
     def _convert_profile_to_model(profile: Profile) -> ProfileReadModel:
