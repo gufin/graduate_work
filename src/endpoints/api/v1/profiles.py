@@ -1,3 +1,5 @@
+from typing import Optional
+
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
 
@@ -54,3 +56,14 @@ async def deactivate_profile(
     profile_service: ProfileService = Depends(Provide[Container.profile_service]),
 ) -> ProfileReadModel:
     return await profile_service.deactivate(user_id=user_id)
+
+
+@router.put(' /groups/{group_id}/profiles/{user_id} ', dependencies=[Depends(jwt_auth)])
+@inject
+async def update_profile_by_group_and_user_id(
+    group_id: str,
+    user_id: str,
+    update_model: ProfileUpdateModel,
+    profile_service: ProfileService = Depends(Provide[Container.profile_service]),
+) -> Optional[ProfileReadModel]:
+    return await profile_service.update_profile_by_group_and_user_id(group_id=group_id, user_id=user_id, update_model=update_model)

@@ -1,7 +1,9 @@
+from typing import Optional
+
 from models.message import UseCase
 from models.profile import ProfileCreateModel, ProfileMovieUpdateModel, ProfileReadModel, ProfileUpdateModel
 from models.task import JobType
-from use_cases.abstract_repositories import AbstractProfileRepository
+from use_cases.abstract_repositories import AbstractProfileRepository, get_auth_client
 from use_cases.abstract_worker import AbstractWorker
 
 
@@ -54,4 +56,14 @@ class ProfileService:
             job_type=JobType.SEND_MESSAGE_TASK,
             use_case=use_case.value,
             payload=payload,
+        )
+
+    async def update_profile_by_group_and_user_id(self, group_id: str, user_id: str,
+                                            update_model: ProfileUpdateModel) -> Optional[ProfileReadModel]:
+
+        profile_in_group = await get_auth_client().is_profile_in_group(group_id=group_id, user_id=user_id)
+        return (
+            await self.update(user_id=user_id, update_model=update_model)
+            if profile_in_group
+            else None
         )
