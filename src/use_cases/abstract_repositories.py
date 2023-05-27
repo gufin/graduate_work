@@ -19,7 +19,7 @@ class AbstractProfileRepository(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    async def read(self, *, user_id: str) -> ProfileReadModel:
+    async def read(self, *, user_id: str) -> ProfileReadModel | None:
         pass
 
     @abstractmethod
@@ -33,11 +33,7 @@ class AbstractProfileRepository(metaclass=ABCMeta):
 
 class AbstractAuthRepository(ABC):
     @abstractmethod
-    async def verify(self, *, token: str, roles: str, headers: dict) -> bool:
-        pass
-
-    @abstractmethod
-    async def is_profile_in_group(self, *, group_id: str, user_id: str) -> bool:
+    async def verify(self, *, operation_id: str, token: str, roles: str, request: any, headers: dict) -> bool:
         pass
 
 

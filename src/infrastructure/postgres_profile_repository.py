@@ -1,6 +1,7 @@
 import uuid
 
 from sqlalchemy import and_, select, update
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from infrastructure.entities import Profile, ProfileMovie, engine
@@ -47,6 +48,8 @@ class PostgresProfileRepository(AbstractProfileRepository):
         async with AsyncSession(engine) as session:
             async with session.begin():
                 read_result: Profile = await session.scalar(select(Profile).where(Profile.user_id == user_id)) # noqa
+                if not read_result:
+                    raise NoResultFound
                 return self._convert_profile_to_model(profile=read_result)
 
     async def movie_update(self, *, update_model: ProfileMovieUpdateModel) -> ProfileMovieReadModel:

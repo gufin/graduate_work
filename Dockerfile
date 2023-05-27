@@ -31,6 +31,7 @@ RUN  pip install --upgrade pip \
 
 COPY ./src .
 COPY ./src/endpoints/tasks.py ./tasks.py
+COPY ./client-schemas .
 
 RUN chmod u+x /app/docker-entrypoint.sh
 

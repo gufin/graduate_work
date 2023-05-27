@@ -110,6 +110,7 @@ services:
     environment:
       DB_HOST: ${PROFILE_DB_HOST}
       DB_PORT: ${PROFILE_DB_PORT}
+      AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
     depends_on:
       - broker
     command: sh -c "dockerize python cli.py on-favorite-movies-change-consumer"
@@ -139,6 +140,7 @@ services:
     environment:
       DB_HOST: ${PROFILE_DB_HOST}
       DB_PORT: ${PROFILE_DB_PORT}
+      AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
     depends_on:
       - profile-db
     command: sh -c "alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${PROFILE_APP_HOST}:${PROFILE_APP_PORT}"
@@ -231,6 +233,7 @@ services:
     environment:
       DB_HOST: ${PROFILE_DB_HOST}
       DB_PORT: ${PROFILE_DB_PORT}
+      AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
     command: celery -A tasks worker -l info
     depends_on:
       - storage
