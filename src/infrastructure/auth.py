@@ -60,5 +60,5 @@ class AuthClient(AbstractAuthRepository): # noqa WPS338
 
 
 class AuthClientMock(AbstractAuthRepository):
-    async def verify(self, *, operation_id: str, token: str, roles: str, headers: dict) -> bool:
+    async def verify(self, *, operation_id: str, token: str, roles: str, request: Request, headers: dict) -> bool:
         return True
