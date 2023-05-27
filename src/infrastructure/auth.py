@@ -51,6 +51,9 @@ class AuthClient(AbstractAuthRepository): # noqa WPS338
         except TypeError:
             return False
 
+    async def is_profile_in_group(self, *, group_id: str, user_id: str) -> bool:
+        return True
+
 
 class AuthClientMock(AbstractAuthRepository):
     async def verify(self, *, token: str, roles: str, headers: dict) -> bool:

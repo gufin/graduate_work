@@ -36,6 +36,10 @@ class AbstractAuthRepository(ABC):
     async def verify(self, *, token: str, roles: str, headers: dict) -> bool:
         pass
 
+    @abstractmethod
+    async def is_profile_in_group(self, *, group_id: str, user_id: str) -> bool:
+        pass
+
 
 auth_client: AbstractAuthRepository | None = None
 
