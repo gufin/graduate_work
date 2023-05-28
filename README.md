@@ -8,7 +8,7 @@
 
 [Репозиторий проекта](https://github.com/alex-fullstack/graduate_work)
 
-[Техническое задание](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
+[Техническое задание с ссылками на issues](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
 
 [Схема архитектуры](https://github.com/alex-fullstack/graduate_work/blob/main/docs/architecture.png)
 
@@ -62,3 +62,9 @@
     ```
 
 После успешного выполнения всех описанных выше команд вы должны получить полностью настроенное приложение.
+
+5. Запуск в режиме разработки
+
+    ```shell script
+    docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+    ```
