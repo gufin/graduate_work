@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from sqlalchemy import and_, select, update
@@ -16,7 +17,11 @@ from use_cases.abstract_repositories import AbstractProfileRepository
 
 
 class PostgresProfileRepository(AbstractProfileRepository):
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+
     async def create(self, *, user_id: str, create_model: ProfileCreateModel) -> ProfileReadModel:
+        self.logger.info(f'Creating profile for user_id: {user_id}')
         profile_result_model = ProfileReadModel(
             id=uuid.uuid4(),
             user_id=user_id,
@@ -27,9 +32,11 @@ class PostgresProfileRepository(AbstractProfileRepository):
             async with session.begin():
                 session.add(Profile(**profile_result_model.dict()))
             await session.commit()
+            self.logger.debug('Committing profile creation transaction.')
         return profile_result_model
 
     async def update(self, *, user_id: str, update_model: ProfileUpdateModel) -> ProfileReadModel:
+        self.logger.info(f'Updating profile for user_id: {user_id}')
         async with AsyncSession(engine) as session:
             async with session.begin():
                 update_result = await session.scalar(
@@ -41,10 +48,12 @@ class PostgresProfileRepository(AbstractProfileRepository):
                 )
                 update_result_model = self._convert_profile_to_model(profile=update_result)
             await session.commit()
+            self.logger.debug('Committing profile update transaction.')
 
             return update_result_model
 
     async def read(self, user_id: str) -> ProfileReadModel:
+        self.logger.info(f'Reading profile for user_id: {user_id}')
         async with AsyncSession(engine) as session:
             async with session.begin():
                 read_result: Profile = await session.scalar(select(Profile).where(Profile.user_id == user_id)) # noqa
@@ -53,6 +62,7 @@ class PostgresProfileRepository(AbstractProfileRepository):
                 return self._convert_profile_to_model(profile=read_result)
 
     async def movie_update(self, *, update_model: ProfileMovieUpdateModel) -> ProfileMovieReadModel:
+        self.logger.info(f'Updating movie for user_id: {update_model.user_id}')
         async with AsyncSession(engine) as session:
             async with session.begin():
                 profile: Profile = await session.scalar(select(Profile).where(
@@ -80,9 +90,11 @@ class PostgresProfileRepository(AbstractProfileRepository):
                 )
 
             await session.commit()
+            self.logger.debug(f'Movie updated for user_id: {update_model.user_id}')
             return update_result
 
     async def get_favorite_movie_ids(self, *, user_id: str) -> list[str]:
+        self.logger.info(f'Getting users favorite movies for user_id: {user_id}')
         async with AsyncSession(engine) as session:
             async with session.begin():
                 profile: Profile = await session.scalar(select(Profile).where(

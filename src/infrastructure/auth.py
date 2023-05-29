@@ -1,3 +1,4 @@
+import logging
 from http import HTTPStatus
 
 import aiohttp
@@ -11,6 +12,7 @@ class AuthClient(AbstractAuthRepository): # noqa WPS338
     def __init__(self, *, base_url: str, schema: dict):
         self.base_url = base_url
         self.schema = schema
+        self.logger = logging.getLogger(__name__)
 
     @property
     def base_api_path(self):
@@ -45,6 +47,7 @@ class AuthClient(AbstractAuthRepository): # noqa WPS338
         request: Request,
         headers: dict,
     ) -> bool:
+        self.logger.debug('Starting verification process')
         session = aiohttp.ClientSession()
         try:
             endpoint = self.endpoint(operation=operation.value, method='get')
@@ -65,6 +68,7 @@ class AuthClient(AbstractAuthRepository): # noqa WPS338
                 await session.close()
                 return response.status == HTTPStatus.OK
         except TypeError:
+            self.logger.error('Error during verification process')
             return False
 
 

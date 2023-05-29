@@ -1,4 +1,5 @@
 import json
+import logging
 from collections.abc import Callable
 from time import sleep
 from typing import Any
@@ -9,6 +10,8 @@ from models.message import BrokerMessageModel, UseCase
 from models.profile import ProfileMovieReadModel, ProfileReadModel
 from use_cases.abstract_publisher import AbstractPublisher
 
+logger = logging.getLogger(__name__)
+
 
 class KProducer(AbstractPublisher):
     def __init__(self, *, config: dict, topic: str):
@@ -18,6 +21,7 @@ class KProducer(AbstractPublisher):
         self.topic = topic
 
     def send(self, *, message: BrokerMessageModel):
+        logger.debug('Preparing to send message')
         value_model = None
         key = ''
         match message.use_case:
@@ -28,6 +32,7 @@ class KProducer(AbstractPublisher):
                 value_model = ProfileMovieReadModel(**message.payload)
                 key = str(value_model.profile_id)
         self._on_send(model=BrokerMessageModel(use_case=message.use_case, payload=value_model.dict()), key=key) # noqa
+        logger.info('Message sent successfully')
 
     def _on_send(self, *, key: str, model: BrokerMessageModel):
         self.kafka_producer.send(
@@ -48,18 +53,22 @@ class KConsumer(KafkaConsumer):
         return self._running
 
     def start(self):
+        logger.info('Starting KConsumer')
         self._running = True
 
     def stop(self):
+        logger.info('Stopping KConsumer')
         self._running = False
 
     @staticmethod
     def _default_handler(message: Any):
         record = json.loads(message.value)
         print(record) # noqa
+        logger.info(f'Record processed: {record}')
 
 
 def start(*, instance: KConsumer):
+    logger.debug('Starting consumer instance')
     instance.start()
     while instance.alive:
         for msg in instance:
@@ -67,3 +76,4 @@ def start(*, instance: KConsumer):
         sleep(3)
         instance.stop()
     instance.close()
+    logger.info('Consumer instance stopped')
