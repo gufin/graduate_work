@@ -8,7 +8,15 @@
 
 [Репозиторий проекта](https://github.com/alex-fullstack/graduate_work)
 
-[Техническое задание с ссылками на issues](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
+[Репозиторий сервиса авторизации](https://github.com/alex-fullstack/Auth_sprint_2)
+
+[Репозиторий сервиса панели администратора](https://github.com/alex-fullstack/new_admin_panel_sprint_3)
+
+[Репозиторий сервиса с асинхронным апи](https://github.com/alex-fullstack/Async_API_sprint_2)
+
+[Репозиторий сервиса с контентом пользователей](https://github.com/alex-fullstack/ugc_sprint_2)
+
+[Техническое задание](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
 
 [Схема архитектуры](https://github.com/alex-fullstack/graduate_work/blob/main/docs/architecture.png)
 

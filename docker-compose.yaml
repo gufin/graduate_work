@@ -62,8 +62,6 @@ services:
     depends_on:
       - storage
     image: 345789231/auth-service:latest
-    ports:
-      - ${AUTH_APP_PORT}:${AUTH_APP_PORT}
     command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
       alembic upgrade head && python cli.py serve --host=${AUTH_APP_HOST} --port=${AUTH_APP_PORT}"
 
@@ -97,8 +95,6 @@ services:
       - .env
     logging:
      driver: none
-    ports:
-      - ${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}
 
   on_favorite_movies_change_consumer:
     image: profile-service:latest
@@ -196,8 +192,6 @@ services:
       AUTH_SERVICE_URL: ${AUTH_APP_SERVICE_URL}
       PROJECT_NAME: ${UGC_APP_PROJECT_NAME}
       AMPQ_URL: ${MQ_BROKER_URL}
-    ports:
-      - ${UGC_APP_PORT}:${UGC_APP_PORT}
     image: 345789231/ugc-service
     command: sh -c "dockerize --wait-retry-interval 5s --timeout 100s -wait http://${MQ_BROKER_HOST}:${MQ_BROKER_PORT} &&
       gunicorn -k uvicorn.workers.UvicornWorker main:app --bind=${UGC_APP_HOST}:${UGC_APP_PORT}"
@@ -205,9 +199,6 @@ services:
   mq-broker:
     image: rabbitmq:3-management-alpine
     restart: always
-    ports:
-      - ${MQ_BROKER_PORT}:${MQ_BROKER_PORT}
-      - ${MQ_BROKER_UI_PORT}:${MQ_BROKER_UI_PORT}
     volumes:
       - mq-broker-data:/var/lib/rabbitmq
       - mq-broker-logs:/var/log/rabbitmq
@@ -220,8 +211,6 @@ services:
       - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
     volumes:
         - elasticsearch-data:/var/lib/elasticsearch/data
-    ports:
-      - ${ES_PORT}:${ES_PORT}
 
   worker:
     image: profile-service:latest
@@ -270,21 +259,14 @@ services:
     image: redis:latest
     env_file:
       - .env
-    ports:
-      - ${STORAGE_PORT}:${STORAGE_PORT}
     volumes:
       - storage-data:/var/lib/storage-data/data
 
   tracer:
     image: jaegertracing/all-in-one:latest
-    ports:
-      - ${JAEGER_PORT}:${JAEGER_PORT}/udp
-      - ${JAEGER_UI_PORT}:${JAEGER_UI_PORT}
 
   mongo:
     image: mongo
-    ports:
-      - ${MONGO_PORT}:${MONGO_PORT}
     volumes:
       - /etc/localtime:/etc/localtime:ro
 

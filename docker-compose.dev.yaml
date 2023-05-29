@@ -15,3 +15,55 @@ services:
       - profile-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+
+  mq-broker:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    ports:
+      - ${MQ_BROKER_PORT}:${MQ_BROKER_PORT}
+      - ${MQ_BROKER_UI_PORT}:${MQ_BROKER_UI_PORT}
+
+  broker:
+    image: confluentinc/cp-kafka:latest
+    restart: always
+    depends_on:
+      - zookeeper
+    env_file:
+      - .env
+    logging:
+      driver: none
+    ports:
+      - ${KAFKA_BROKER_PORT}:${KAFKA_BROKER_PORT}
+
+  elasticsearch:
+    image: elasticsearch:7.17.6
+    restart: always
+    environment:
+      - discovery.type=${ES_DISCOVERY_TYPE}
+      - xpack.security.enabled=${XPACK_SECURITY_ENABLED}
+    volumes:
+        - elasticsearch-data:/var/lib/elasticsearch/data
+    ports:
+      - ${ES_PORT}:${ES_PORT}
+
+  storage:
+    image: redis:latest
+    env_file:
+      - .env
+    ports:
+      - ${STORAGE_PORT}:${STORAGE_PORT}
+    volumes:
+      - storage-data:/var/lib/storage-data/data
+
+  tracer:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - ${JAEGER_PORT}:${JAEGER_PORT}/udp
+      - ${JAEGER_UI_PORT}:${JAEGER_UI_PORT}
+
+  mongo:
+    image: mongo
+    ports:
+      - ${MONGO_PORT}:${MONGO_PORT}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro

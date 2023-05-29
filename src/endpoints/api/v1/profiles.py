@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends
 
 from core.containers import Container
 from endpoints.api.middleware.auth import JWTBearer, jwt_auth
+from models.integration import AuthServiceOperation
 from models.profile import ProfileCreateModel, ProfileReadModel, ProfileUpdateModel
 from use_cases.profile_service import ProfileService
 
@@ -62,7 +63,7 @@ async def deactivate_profile(
     '/{user_id}/group/{owner_id}',
     dependencies=[
         Depends(jwt_auth),
-        Depends(JWTBearer(operation_id='check-group')),
+        Depends(JWTBearer(operation=AuthServiceOperation.check_group)),
     ],
 )
 @inject

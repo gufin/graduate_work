@@ -1,5 +1,6 @@
 from abc import ABC, ABCMeta, abstractmethod
 
+from models.integration import AuthServiceOperation
 from models.profile import (
     ProfileCreateModel,
     ProfileMovieReadModel,
@@ -33,7 +34,15 @@ class AbstractProfileRepository(metaclass=ABCMeta):
 
 class AbstractAuthRepository(ABC):
     @abstractmethod
-    async def verify(self, *, operation_id: str, token: str, roles: str, request: any, headers: dict) -> bool:
+    async def verify(
+        self,
+        *,
+        operation: AuthServiceOperation,
+        token: str,
+        roles: str,
+        request: any,
+        headers: dict,
+    ) -> bool:
         pass
 
 
