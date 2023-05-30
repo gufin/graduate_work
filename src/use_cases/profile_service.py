@@ -19,25 +19,25 @@ class ProfileService:
         self.logger = logging.getLogger(__name__)
 
     async def create(self, *, user_id: str, profile_model: ProfileCreateModel) -> ProfileReadModel:
-        self.logger.info(f'Creating profile for user_id: {user_id}')
+        self.logger.info('Creating profile for user_id: %s', user_id)
         create_result = await self.repository.create(user_id=user_id, create_model=profile_model)
         self._send_message(use_case=UseCase.profile_change, payload=create_result.dict())
         return create_result
 
     async def get(self, *, user_id: str) -> ProfileReadModel:
-        self.logger.info(f'Getting profile for user_id: {user_id}')
+        self.logger.info('Getting profile for user_id: %s', user_id)
         read_result = await self.repository.read(user_id=user_id)
         self._send_message(use_case=UseCase.profile_change, payload=read_result.dict())
         return read_result
 
     async def update(self, *, user_id: str, update_model: ProfileUpdateModel) -> ProfileReadModel:
-        self.logger.info(f'Updating profile for user_id: {user_id}')
+        self.logger.info('Updating profile for user_id: %s', user_id)
         update_result = await self.repository.update(user_id=user_id, update_model=update_model)
         self._send_message(use_case=UseCase.profile_change, payload=update_result.dict())
         return update_result
 
     async def deactivate(self, *, user_id: str) -> ProfileReadModel:
-        self.logger.info(f'Deactivating profile for user_id: {user_id}')
+        self.logger.info('Deactivating profile for user_id: %s', user_id)
         deactivate_result = await self.repository.update(
             user_id=user_id,
             update_model=ProfileUpdateModel(is_active=False),
@@ -55,11 +55,11 @@ class ProfileService:
         self._send_message(use_case=UseCase.profile_movie_change, payload=update_result.dict())
 
     async def get_favorite_movie_ids(self, *, user_id: str) -> list:
-        self.logger.info(f'Getting favorite movie IDs for user_id: {user_id}')
+        self.logger.info('Getting favorite movie IDs for user_id: %s', user_id)
         return await self.repository.get_favorite_movie_ids(user_id=user_id)
 
     def _send_message(self, *, use_case: UseCase, payload: dict):
-        self.logger.info(f'Sending message for use_case: {use_case}')
+        self.logger.info('Sending message for use_case: %s', use_case)
         self.worker.start_job(
             job_type=JobType.SEND_MESSAGE_TASK,
             use_case=use_case.value,

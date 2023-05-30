@@ -64,7 +64,7 @@ class KConsumer(KafkaConsumer):
     def _default_handler(message: Any):
         record = json.loads(message.value)
         print(record) # noqa
-        logger.info(f'Record processed: {record}')
+        logger.info('Record processed: %s', record)
 
 
 def start(*, instance: KConsumer):
