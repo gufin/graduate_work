@@ -43,7 +43,7 @@ uniqueness of the user, as well as for two-factor authorization.
     pip3 install -r requirements.txt
     ```
 
-### Инициализация проекта
+### Initializing the Project
 1. Create a `.env` file and fill it with the values from `.env.example`.
 
     ```shell script
