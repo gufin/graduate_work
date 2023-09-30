@@ -1,26 +1,24 @@
-# Проектная работа: диплом
+# 🛠 Educational project
 
-У вас будет один репозиторий на все 4 недели работы над дипломным проектом. 
+This is the graduate work for the course "Middle Python Developer". The goal of this project is to add a user profile 
+service to an online cinema. In this service, the business offers to save sensitive information about a person: phone 
+number and full name. The business will further use the phone number in marketing communications, to determine the 
+uniqueness of the user, as well as for two-factor authorization.
 
-Если вы выбрали работу в командах, ревью будет организовано как в командных модулях с той лишь разницей, что формируете состав команды и назначаете тимлида вы сами, а не команда сопровождения.
 
-Удачи!
+[Authorization service repository](https://github.com/alex-fullstack/Auth_sprint_2)
 
-[Репозиторий проекта](https://github.com/alex-fullstack/graduate_work)
+[Admin panel service repository](https://github.com/alex-fullstack/new_admin_panel_sprint_3)
 
-[Репозиторий сервиса авторизации](https://github.com/alex-fullstack/Auth_sprint_2)
+[Service repository with asynchronous API](https://github.com/alex-fullstack/Async_API_sprint_2)
 
-[Репозиторий сервиса панели администратора](https://github.com/alex-fullstack/new_admin_panel_sprint_3)
+[Service repository with user content](https://github.com/alex-fullstack/ugc_sprint_2)
 
-[Репозиторий сервиса с асинхронным апи](https://github.com/alex-fullstack/Async_API_sprint_2)
+[Technical task](https://github.com/gufin/graduate_work/tree/main/docs/tasks)
 
-[Репозиторий сервиса с контентом пользователей](https://github.com/alex-fullstack/ugc_sprint_2)
+![Architecture](https://github.com/gufin/graduate_work/blob/main/docs/architecture.png)
 
-[Техническое задание](https://github.com/alex-fullstack/graduate_work/tree/main/docs/tasks)
-
-[Схема архитектуры](https://github.com/alex-fullstack/graduate_work/blob/main/docs/architecture.png)
-
-**Зависимости проекта:**
+**Project Dependencies:**
 
 - docker
 - docker-compose
@@ -28,50 +26,50 @@
 - venv
 
 
-### Установка зависимостей
-- Инструкция по установке `docker` и `docker-compose` приведена на [оф. сайте](https://docs.docker.com/install/).
+### Installing dependencies
+- Instructions for installing `docker` and `docker-compose` are given at [off. website](https://docs.docker.com/install/).
 
-- Для установки `python` используйте любой удобный для Вас способ
+- To install `python` use any method convenient for you
 
-- После установки `python` выполните команду по созданию виртуального окружения:
+- After installing `python`, run the command to create a virtual environment:
 
     ```shell script
     python3.10 -m venv ./venv && source ./venv/bin/activate
     ``` 
 
-- Затем выполните команду по установке всех необходимых зависимостей:
+- Then run the command to install all the required dependencies:
 
     ```shell script
     pip3 install -r requirements.txt
     ```
 
 ### Инициализация проекта
-1. Создайте файл `.env` и заполните его значениями из `.env.example`.
+1. Create a `.env` file and fill it with the values from `.env.example`.
 
     ```shell script
     cp ./.env.example ./.env
     ```
 
-2. Запустите проект:
+2. Run the project:
 
     ```shell script
     docker-compose up --build -d
     ```
 
-3. Создайте суперпользователя:
+3. Create a superuser:
     
     ```shell script
     docker-compose exec admin python3 manage.py createsuperuser
     ```
 
-4. Завершите работу всех контейнеров проекта:
+4. Shut down all project containers:
     ```shell
     docker-compose stop
     ```
 
-После успешного выполнения всех описанных выше команд вы должны получить полностью настроенное приложение.
+After successfully running all the above commands, you should have a fully configured application.
 
-5. Запуск в режиме разработки
+5. Running in development mode
 
     ```shell script
     docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
